@@ -5,11 +5,15 @@ import javax.swing.*;
 import static de.moinFT.main.Main.functionParts;
 
 public class FunctionOptions {
+    private static final String[] sin_cos_tan_mathOperators = {"sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh"};
+    private static final String[] normal_mathOperators = {"+", "-", "*", "/", "^", "(", ")"};
+
     public static boolean parse(String function) {
         System.out.println(function);
         boolean is_AfterOpenBracket = false;
         boolean is_AfterCloseBracket = false;
         boolean is_AfterNumber = false;
+        boolean is_AfterDot = false;
         boolean is_AfterSymbol = false;
         boolean is_AfterLetter = false;
 
@@ -20,7 +24,7 @@ public class FunctionOptions {
             switch (function.substring(counter, counter + 1)) {
                 case "-":
                 case "+":
-                    if (is_AfterSymbol) {
+                    if (is_AfterSymbol || is_AfterDot) {
                         JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
                         is_error = true;
                     } else {
@@ -35,7 +39,7 @@ public class FunctionOptions {
                 case "/":
                 case "*":
                 case "^":
-                    if (is_AfterSymbol || is_AfterOpenBracket || is_AfterLetter) {
+                    if (is_AfterSymbol || is_AfterOpenBracket || is_AfterDot) {
                         JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
                         is_error = true;
                     } else {
@@ -61,7 +65,7 @@ public class FunctionOptions {
                     }
                     break;
                 case ")":
-                    if (is_AfterOpenBracket || is_AfterSymbol) {
+                    if (is_AfterOpenBracket || is_AfterSymbol || is_AfterDot) {
                         JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
                         is_error = true;
                     } else {
@@ -70,6 +74,19 @@ public class FunctionOptions {
                         is_AfterCloseBracket = true;
                         is_AfterLetter = false;
                         functionParts.set(false, true, true, symbol);
+                    }
+                    break;
+                case ".":
+                    if (counter == 0 || !is_AfterNumber || is_AfterDot) {
+                        JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
+                        is_error = true;
+                    } else {
+                        int count = functionParts.count();
+                        String lastNumber = functionParts.get(count - 1).getFunctionPart();
+
+                        functionParts.get(count - 1).setNew(true, false, false, lastNumber + symbol);
+                        is_AfterDot = true;
+                        is_AfterNumber = true;
                     }
                     break;
                 case "1":
@@ -92,89 +109,60 @@ public class FunctionOptions {
                     }
                     is_AfterSymbol = false;
                     is_AfterNumber = true;
+                    is_AfterDot = false;
                     is_AfterOpenBracket = false;
                     is_AfterCloseBracket = false;
                     is_AfterLetter = false;
                     break;
                 default:
-                    if (!is_AfterLetter) {
-                        if (symbol.equals("s") || symbol.equals("c") || symbol.equals("t")) {
-                            functionParts.set(false, true, false, symbol);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
-                            is_error = true;
-                        }
+                    if (is_AfterDot || is_AfterCloseBracket) {
+                        JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
+                        is_error = true;
                     } else {
-                        switch (symbol) {
-                            case "i" -> {
-                                int count = functionParts.count();
-                                String lastLetters = functionParts.get(count - 1).getFunctionPart();
+                        if (is_AfterLetter) {
+                            int count = functionParts.count();
+                            String lastLetter = functionParts.get(count - 1).getFunctionPart();
 
-                                if (lastLetters.equals("s")) {
-                                    functionParts.get(count - 1).setNew(false, true, false, lastLetters + symbol);
-                                } else {
-                                    JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
-                                    is_error = true;
-                                }
-                            }
-                            case "o" -> {
-                                int count = functionParts.count();
-                                String lastLetters = functionParts.get(count - 1).getFunctionPart();
-
-                                if (lastLetters.equals("c")) {
-                                    functionParts.get(count - 1).setNew(false, true, false, lastLetters + symbol);
-                                } else {
-                                    JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
-                                    is_error = true;
-                                }
-                            }
-                            case "a" -> {
-                                int count = functionParts.count();
-                                String lastLetters = functionParts.get(count - 1).getFunctionPart();
-
-                                if (lastLetters.equals("t")) {
-                                    functionParts.get(count - 1).setNew(false, true, false, lastLetters + symbol);
-                                } else {
-                                    JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
-                                    is_error = true;
-                                }
-                            }
-                            case "s" -> {
-                                int count = functionParts.count();
-                                String lastLetters = functionParts.get(count - 1).getFunctionPart();
-
-                                if (lastLetters.equals("si") || lastLetters.equals("co")) {
-                                    functionParts.get(count - 1).setNew(false, true, false, lastLetters + symbol);
-                                } else {
-                                    JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
-                                    is_error = true;
-                                }
-                            }
-                            case "n" -> {
-                                int count = functionParts.count();
-                                String lastLetters = functionParts.get(count - 1).getFunctionPart();
-
-                                if (lastLetters.equals("ta") || lastLetters.equals("si")) {
-                                    functionParts.get(count - 1).setNew(false, true, false, lastLetters + symbol);
-                                } else {
-                                    JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
-                                    is_error = true;
-                                }
-                            }
-                            default -> {
-                                JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
-                                is_error = true;
-                            }
+                            functionParts.get(count - 1).setNew(false, true, false, lastLetter + symbol);
+                        } else {
+                            functionParts.set(false, true, false, symbol);
                         }
+                        is_AfterLetter = true;
+                        is_AfterSymbol = true;
+                        is_AfterOpenBracket = false;
+                        is_AfterCloseBracket = false;
+                        is_AfterNumber = false;
                     }
-                    is_AfterLetter = true;
-                    is_AfterSymbol = true;
-                    is_AfterOpenBracket = false;
-                    is_AfterCloseBracket = false;
-                    is_AfterNumber = false;
                     break;
             }
         }
+
+        int count = functionParts.count();
+        for (int i = 0; i < count; i++) {
+            if (functionParts.get(i).isSymbol()) {
+                boolean is_CorrectSymbol = false;
+
+                for (String temp : normal_mathOperators) {
+                    if (functionParts.get(i).getFunctionPart().equals(temp)) {
+                        is_CorrectSymbol = true;
+                        break;
+                    }
+                }
+
+                for (String temp : sin_cos_tan_mathOperators) {
+                    if (functionParts.get(i).getFunctionPart().equals(temp)) {
+                        is_CorrectSymbol = true;
+                        break;
+                    }
+                }
+
+                if (!is_CorrectSymbol) {
+                    is_error = true;
+                    break;
+                }
+            }
+        }
+
         System.out.println("Correct Syntax: " + !is_error);
         return !is_error;
     }
@@ -370,7 +358,15 @@ public class FunctionOptions {
             if (functionParts.get(i).isSymbol()) {
                 String functionPart = functionParts.get(i).getFunctionPart();
 
-                if (functionPart.equals("sin") || functionPart.equals("cos") || functionPart.equals("tan")) {
+                boolean is_RightSymbol = false;
+                for (String temp : sin_cos_tan_mathOperators) {
+                    if (functionPart.equals(temp)) {
+                        is_RightSymbol = true;
+                        break;
+                    }
+                }
+
+                if (is_RightSymbol) {
                     double number = Double.parseDouble(functionParts.get(i + 1).getFunctionPart());
 
                     String numberResult = "";
@@ -379,6 +375,12 @@ public class FunctionOptions {
                         case "sin" -> numberResult = "" + Math.sin(Math.toRadians(number));
                         case "cos" -> numberResult = "" + Math.cos(Math.toRadians(number));
                         case "tan" -> numberResult = "" + Math.tan(Math.toRadians(number));
+                        case "asin" -> numberResult = "" + Math.toDegrees(Math.asin(number));
+                        case "acos" -> numberResult = "" + Math.toDegrees(Math.acos(number));
+                        case "atan" -> numberResult = "" + Math.toDegrees(Math.atan(number));
+                        case "sinh" -> numberResult = "" + Math.sinh(number);
+                        case "cosh" -> numberResult = "" + Math.cosh(number);
+                        case "tanh" -> numberResult = "" + Math.tanh(number);
                     }
 
                     functionParts.get(i).setNew(true, false, false, numberResult);
