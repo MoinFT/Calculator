@@ -115,4 +115,24 @@ public class FunctionParts {
             return 0;
         }
     }
+
+    public int countOpenBrackets() {
+        if (!this.free) {
+            if (this.follower != null) {
+                if (this.functionPart.equals("(")) {
+                    return 1 + this.follower.countOpenBrackets();
+                } else {
+                    return this.follower.countOpenBrackets();
+                }
+            } else {
+                if (this.functionPart.equals("(")) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        } else {
+            return 0;
+        }
+    }
 }

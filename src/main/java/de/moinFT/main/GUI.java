@@ -10,7 +10,7 @@ public class GUI extends JFrame {
     public GUI() {
         this.setTitle("Calculator");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setBounds(100, 100, 600, 450);
+        this.setBounds(100, 100, 285, 225);
 
         JPanel contentPane = GUIComponent.JPanel();
         this.setContentPane(contentPane);
@@ -24,7 +24,7 @@ public class GUI extends JFrame {
 
         JButton Btn_Calculate = GUIComponent.Button(contentPane);
         Btn_Calculate.setText("Calculate");
-        Btn_Calculate.setBounds(10, 80, 100, 25);
+        Btn_Calculate.setBounds(10, 80, 250, 25);
 
         JLabel Lbl_Output = GUIComponent.Label(contentPane, Font.BOLD, 13);
         Lbl_Output.setText("Output:");
@@ -42,17 +42,11 @@ public class GUI extends JFrame {
             boolean correctFunction = FunctionOptions.parse(TF_Input.getText());
 
             if (correctFunction) {
-                int count = Main.functionParts.count();
-                for (int i = 0; i < count; i++) {
-                    System.out.println(Main.functionParts.get(i).getFunctionPart());
-                }
                 FunctionOptions.optimizeNumbers();
                 FunctionOptions.optimizeBrackets();
 
-                count = Main.functionParts.count();
-                for (int i = 0; i < count; i++) {
-                    System.out.println(Main.functionParts.get(i).getFunctionPart());
-                }
+                FunctionOptions.calculation();
+                TF_Output.setText(TF_Input.getText() + " = " + Main.functionParts.get(0).getFunctionPart());
             } else {
                 TF_Output.setText("Error");
             }
