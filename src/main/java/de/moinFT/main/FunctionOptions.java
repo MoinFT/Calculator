@@ -11,7 +11,10 @@ public class FunctionOptions {
         boolean is_AfterCloseBracket = false;
         boolean is_AfterNumber = false;
         boolean is_AfterSymbol = false;
+        boolean is_AfterLetter = false;
+
         boolean is_error = false;
+
         for (int counter = 0; (counter + 1) <= function.length() && !is_error; counter++) {
             String symbol = function.substring(counter, counter + 1);
             switch (function.substring(counter, counter + 1)) {
@@ -25,13 +28,14 @@ public class FunctionOptions {
                         is_AfterNumber = false;
                         is_AfterOpenBracket = false;
                         is_AfterCloseBracket = false;
+                        is_AfterLetter = false;
                         functionParts.set(false, true, false, symbol);
                     }
                     break;
                 case "/":
                 case "*":
                 case "^":
-                    if (is_AfterSymbol || is_AfterOpenBracket) {
+                    if (is_AfterSymbol || is_AfterOpenBracket || is_AfterLetter) {
                         JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
                         is_error = true;
                     } else {
@@ -39,6 +43,7 @@ public class FunctionOptions {
                         is_AfterNumber = false;
                         is_AfterOpenBracket = false;
                         is_AfterCloseBracket = false;
+                        is_AfterLetter = false;
                         functionParts.set(false, true, false, symbol);
                     }
                     break;
@@ -51,6 +56,7 @@ public class FunctionOptions {
                         is_AfterNumber = false;
                         is_AfterOpenBracket = true;
                         is_AfterCloseBracket = false;
+                        is_AfterLetter = false;
                         functionParts.set(false, true, true, symbol);
                     }
                     break;
@@ -62,6 +68,7 @@ public class FunctionOptions {
                         is_AfterNumber = false;
                         is_AfterOpenBracket = false;
                         is_AfterCloseBracket = true;
+                        is_AfterLetter = false;
                         functionParts.set(false, true, true, symbol);
                     }
                     break;
@@ -74,9 +81,11 @@ public class FunctionOptions {
                 case "7":
                 case "8":
                 case "9":
+                case "0":
                     if (is_AfterNumber) {
                         int count = functionParts.count();
                         String lastNumber = functionParts.get(count - 1).getFunctionPart();
+
                         functionParts.get(count - 1).setNew(true, false, false, lastNumber + symbol);
                     } else {
                         functionParts.set(true, false, false, symbol);
@@ -85,22 +94,96 @@ public class FunctionOptions {
                     is_AfterNumber = true;
                     is_AfterOpenBracket = false;
                     is_AfterCloseBracket = false;
+                    is_AfterLetter = false;
                     break;
                 default:
-                    JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
-                    is_error = true;
+                    if (!is_AfterLetter) {
+                        if (symbol.equals("s") || symbol.equals("c") || symbol.equals("t")) {
+                            functionParts.set(false, true, false, symbol);
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
+                            is_error = true;
+                        }
+                    } else {
+                        switch (symbol) {
+                            case "i" -> {
+                                int count = functionParts.count();
+                                String lastLetters = functionParts.get(count - 1).getFunctionPart();
+
+                                if (lastLetters.equals("s")) {
+                                    functionParts.get(count - 1).setNew(false, true, false, lastLetters + symbol);
+                                } else {
+                                    JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
+                                    is_error = true;
+                                }
+                            }
+                            case "o" -> {
+                                int count = functionParts.count();
+                                String lastLetters = functionParts.get(count - 1).getFunctionPart();
+
+                                if (lastLetters.equals("c")) {
+                                    functionParts.get(count - 1).setNew(false, true, false, lastLetters + symbol);
+                                } else {
+                                    JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
+                                    is_error = true;
+                                }
+                            }
+                            case "a" -> {
+                                int count = functionParts.count();
+                                String lastLetters = functionParts.get(count - 1).getFunctionPart();
+
+                                if (lastLetters.equals("t")) {
+                                    functionParts.get(count - 1).setNew(false, true, false, lastLetters + symbol);
+                                } else {
+                                    JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
+                                    is_error = true;
+                                }
+                            }
+                            case "s" -> {
+                                int count = functionParts.count();
+                                String lastLetters = functionParts.get(count - 1).getFunctionPart();
+
+                                if (lastLetters.equals("si") || lastLetters.equals("co")) {
+                                    functionParts.get(count - 1).setNew(false, true, false, lastLetters + symbol);
+                                } else {
+                                    JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
+                                    is_error = true;
+                                }
+                            }
+                            case "n" -> {
+                                int count = functionParts.count();
+                                String lastLetters = functionParts.get(count - 1).getFunctionPart();
+
+                                if (lastLetters.equals("ta") || lastLetters.equals("si")) {
+                                    functionParts.get(count - 1).setNew(false, true, false, lastLetters + symbol);
+                                } else {
+                                    JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
+                                    is_error = true;
+                                }
+                            }
+                            default -> {
+                                JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
+                                is_error = true;
+                            }
+                        }
+                    }
+                    is_AfterLetter = true;
+                    is_AfterSymbol = true;
+                    is_AfterOpenBracket = false;
+                    is_AfterCloseBracket = false;
+                    is_AfterNumber = false;
                     break;
             }
         }
         System.out.println("Correct Syntax: " + !is_error);
         return !is_error;
     }
+
     public static void optimizeNumbers() {
         int count = functionParts.count();
         for (int i = 0; i < count; i++) {
             if (functionParts.get(i).isNumber()) {
                 String number = functionParts.get(i).getFunctionPart();
-
                 if (i == 1) {
                     if (functionParts.get(0).isSymbol()) {
                         if (functionParts.get(0).getFunctionPart().equals("-")) {
@@ -109,13 +192,23 @@ public class FunctionOptions {
                             functionParts.get(1).delete();
                             count = functionParts.count();
                             i -= 1;
+                        } else if (functionParts.get(0).getFunctionPart().equals("+")) {
+                            functionParts.get(0).setNew(true, false, false, number);
+                            functionParts.get(1).delete();
+                            count = functionParts.count();
+                            i -= 1;
                         }
                     }
                 } else if (i > 1) {
-                    if (functionParts.get(i - 2).isBracket()) {
+                    if (functionParts.get(i - 2).isBracket() && functionParts.get(i - 2).getFunctionPart().equals("(")) {
                         if (functionParts.get(i - 1).isSymbol()) {
                             if (functionParts.get(i - 1).getFunctionPart().equals("-")) {
                                 number = "" + (Double.parseDouble(number) * -1);
+                                functionParts.get(i - 1).setNew(true, false, false, number);
+                                functionParts.get(i).delete();
+                                count = functionParts.count();
+                                i -= 1;
+                            } else if (functionParts.get(i - 1).getFunctionPart().equals("+")) {
                                 functionParts.get(i - 1).setNew(true, false, false, number);
                                 functionParts.get(i).delete();
                                 count = functionParts.count();
@@ -127,6 +220,7 @@ public class FunctionOptions {
             }
         }
     }
+
     public static void optimizeBrackets() {
         int count = functionParts.count();
         int openBracketID = -1;
@@ -152,9 +246,10 @@ public class FunctionOptions {
 
     public static void calculation() {
         bracketCalculation();
+        sin_cos_tan_Calculation(0);
         exponential_Calculation(0);
         multiplication_dividing_Calculation(0);
-        addition_subtraciton_Calculation(0);
+        addition_subtraction_Calculation(0);
 
         System.out.println(Main.functionParts.get(0).getFunctionPart());
     }
@@ -171,44 +266,44 @@ public class FunctionOptions {
                 }
 
                 if (openBrackets == countOpenBrackets) {
-                    exponential_Calculation(i);
-                    multiplication_dividing_Calculation(i);
-                    addition_subtraciton_Calculation(i);
+                    sin_cos_tan_Calculation(i + 1);
+                    exponential_Calculation(i + 1);
+                    multiplication_dividing_Calculation(i + 1);
+                    addition_subtraction_Calculation(i + 1);
                     optimizeBrackets();
                     break;
                 }
             }
 
+            count = functionParts.count();
             countOpenBrackets = functionParts.countOpenBrackets();
         }
     }
 
-    private static void addition_subtraciton_Calculation(int startIndex) {
+    private static void addition_subtraction_Calculation(int startIndex) {
         int count = functionParts.count();
 
         for (int i = startIndex; i < count; i++) {
             if (functionParts.get(i).isSymbol()) {
-                if (functionParts.get(i).getFunctionPart().equals("+")) {
+                String functionPart = functionParts.get(i).getFunctionPart();
+
+                if (functionPart.equals("+") || functionPart.equals("-")) {
                     double number1 = Double.parseDouble(functionParts.get(i - 1).getFunctionPart());
                     double number2 = Double.parseDouble(functionParts.get(i + 1).getFunctionPart());
-                    String numberResult = "" + (number1 + number2);
+
+                    String numberResult = "";
+
+                    switch (functionPart) {
+                        case "+" -> numberResult = "" + (number1 + number2);
+                        case "-" -> numberResult = "" + (number1 - number2);
+                    }
 
                     functionParts.get(i).setNew(true, false, false, numberResult);
                     functionParts.get(i + 1).delete();
                     functionParts.get(i - 1).delete();
                     count = functionParts.count();
                     i -= 1;
-                } else if (functionParts.get(i).getFunctionPart().equals("-")) {
-                    double number1 = Double.parseDouble(functionParts.get(i - 1).getFunctionPart());
-                    double number2 = Double.parseDouble(functionParts.get(i + 1).getFunctionPart());
-                    String numberResult = "" + (number1 - number2);
-
-                    functionParts.get(i).setNew(true, false, false, numberResult);
-                    functionParts.get(i + 1).delete();
-                    functionParts.get(i - 1).delete();
-                    count = functionParts.count();
-                    i -= 1;
-                } else if (functionParts.isBracket()) {
+                } else if (functionParts.get(i).isBracket()) {
                     return;
                 }
             }
@@ -217,30 +312,27 @@ public class FunctionOptions {
 
     private static void multiplication_dividing_Calculation(int startIndex) {
         int count = functionParts.count();
-
         for (int i = startIndex; i < count; i++) {
             if (functionParts.get(i).isSymbol()) {
-                if (functionParts.get(i).getFunctionPart().equals("*")) {
+                String functionPart = functionParts.get(i).getFunctionPart();
+
+                if (functionPart.equals("*") || functionPart.equals("/")) {
                     double number1 = Double.parseDouble(functionParts.get(i - 1).getFunctionPart());
                     double number2 = Double.parseDouble(functionParts.get(i + 1).getFunctionPart());
-                    String numberResult = "" + (number1 * number2);
+
+                    String numberResult = "";
+
+                    switch (functionPart) {
+                        case "*" -> numberResult = "" + (number1 * number2);
+                        case "/" -> numberResult = "" + (number1 / number2);
+                    }
 
                     functionParts.get(i).setNew(true, false, false, numberResult);
                     functionParts.get(i + 1).delete();
                     functionParts.get(i - 1).delete();
                     count = functionParts.count();
                     i -= 1;
-                } else if (functionParts.get(i).getFunctionPart().equals("/")) {
-                    double number1 = Double.parseDouble(functionParts.get(i - 1).getFunctionPart());
-                    double number2 = Double.parseDouble(functionParts.get(i + 1).getFunctionPart());
-                    String numberResult = "" + (number1 / number2);
-
-                    functionParts.get(i).setNew(true, false, false, numberResult);
-                    functionParts.get(i + 1).delete();
-                    functionParts.get(i - 1).delete();
-                    count = functionParts.count();
-                    i -= 1;
-                } else if (functionParts.isBracket()) {
+                } else if (functionParts.get(i).isBracket()) {
                     return;
                 }
             }
@@ -249,12 +341,14 @@ public class FunctionOptions {
 
     private static void exponential_Calculation(int startIndex) {
         int count = functionParts.count();
-
         for (int i = startIndex; i < count; i++) {
             if (functionParts.get(i).isSymbol()) {
-                if (functionParts.get(i).getFunctionPart().equals("^")) {
+                String functionPart = functionParts.get(i).getFunctionPart();
+
+                if (functionPart.equals("^")) {
                     double number1 = Double.parseDouble(functionParts.get(i - 1).getFunctionPart());
                     double number2 = Double.parseDouble(functionParts.get(i + 1).getFunctionPart());
+
                     String numberResult = "" + Math.pow(number1, number2);
 
                     functionParts.get(i).setNew(true, false, false, numberResult);
@@ -262,7 +356,36 @@ public class FunctionOptions {
                     functionParts.get(i - 1).delete();
                     count = functionParts.count();
                     i -= 1;
-                } else if (functionParts.isBracket()) {
+                } else if (functionParts.get(i).isBracket()) {
+                    return;
+                }
+            }
+        }
+    }
+
+    private static void sin_cos_tan_Calculation(int startIndex) {
+        int count = functionParts.count();
+
+        for (int i = startIndex; i < count; i++) {
+            if (functionParts.get(i).isSymbol()) {
+                String functionPart = functionParts.get(i).getFunctionPart();
+
+                if (functionPart.equals("sin") || functionPart.equals("cos") || functionPart.equals("tan")) {
+                    double number = Double.parseDouble(functionParts.get(i + 1).getFunctionPart());
+
+                    String numberResult = "";
+
+                    switch (functionPart) {
+                        case "sin" -> numberResult = "" + Math.sin(Math.toRadians(number));
+                        case "cos" -> numberResult = "" + Math.cos(Math.toRadians(number));
+                        case "tan" -> numberResult = "" + Math.tan(Math.toRadians(number));
+                    }
+
+                    functionParts.get(i).setNew(true, false, false, numberResult);
+                    functionParts.get(i + 1).delete();
+                    count = functionParts.count();
+                    i -= 1;
+                } else if (functionParts.get(i).isBracket()) {
                     return;
                 }
             }

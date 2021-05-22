@@ -1,4 +1,5 @@
 package de.moinFT.utils;
+
 public class FunctionParts {
     private int ID;
     private boolean number;
