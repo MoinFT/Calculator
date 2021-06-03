@@ -10,6 +10,8 @@ public class FunctionOptions {
 
     public static boolean parse(String function) {
         System.out.println(function);
+        int openBracketCounter = 0;
+        int closeBracketCounter = 0;
         boolean is_AfterOpenBracket = false;
         boolean is_AfterCloseBracket = false;
         boolean is_AfterNumber = false;
@@ -56,6 +58,7 @@ public class FunctionOptions {
                         JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
                         is_error = true;
                     } else {
+                        openBracketCounter++;
                         is_AfterSymbol = false;
                         is_AfterNumber = false;
                         is_AfterOpenBracket = true;
@@ -69,6 +72,11 @@ public class FunctionOptions {
                         JOptionPane.showMessageDialog(null, "Fehler bei der Eingabe!");
                         is_error = true;
                     } else {
+                        if (openBracketCounter < closeBracketCounter + 1) {
+                            is_error = true;
+                        }
+
+                        closeBracketCounter++;
                         is_AfterNumber = false;
                         is_AfterOpenBracket = false;
                         is_AfterCloseBracket = true;
@@ -137,6 +145,10 @@ public class FunctionOptions {
             }
         }
 
+        if (openBracketCounter != closeBracketCounter) {
+            is_error = true;
+        }
+
         int count = functionParts.count();
         for (int i = 0; i < count; i++) {
             if (functionParts.get(i).isSymbol()) {
@@ -188,7 +200,7 @@ public class FunctionOptions {
                         }
                     }
                 } else if (i > 1) {
-                    if (functionParts.get(i - 2).isBracket() && functionParts.get(i - 2).getFunctionPart().equals("(")) {
+                    if (functionParts.get(i - 2).getFunctionPart().equals("(")) {
                         if (functionParts.get(i - 1).isSymbol()) {
                             if (functionParts.get(i - 1).getFunctionPart().equals("-")) {
                                 number = "" + (Double.parseDouble(number) * -1);
@@ -218,6 +230,7 @@ public class FunctionOptions {
                 if (functionParts.get(i).getFunctionPart().equals("(")) {
                     openBracketID = i;
                 }
+
                 if (functionParts.get(i).getFunctionPart().equals(")")) {
                     closeBracketID = i;
                     int bracketDifferent = closeBracketID - openBracketID;
